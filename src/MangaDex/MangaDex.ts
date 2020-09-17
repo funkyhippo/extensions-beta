@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Source, Manga, Chapter, ChapterDetails, HomeSectionRequest, HomeSection, MangaTile, SearchRequest, Request, MangaUpdates } from "paperback-extensions-common"
 
 export class MangaDex extends Source {
