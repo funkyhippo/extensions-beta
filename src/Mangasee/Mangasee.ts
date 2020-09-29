@@ -1,6 +1,7 @@
 import { Source, Manga, MangaStatus, Chapter, ChapterDetails, HomeSectionRequest, HomeSection, MangaTile, SearchRequest, LanguageCode, TagSection, Request, MangaUpdates, PagedResults } from "paperback-extensions-common"
 
 const MS_DOMAIN = 'https://mangasee123.com'
+let MS_IMAGE_DOMAIN = 'https://cover.mangabeast01.com/cover'
 
 export class Mangasee extends Source {
   constructor(cheerio: CheerioAPI) {
@@ -36,7 +37,10 @@ export class Mangasee extends Source {
     let json = JSON.parse($('[type=application\\/ld\\+json]').html()?.replace(/\t*\n*/g, '') ?? '')
     let entity = json.mainEntity
     let info = $('.row')
-    let image = `https://cover.mangabeast01.com/cover/${metadata.id}.jpg`
+    let imgSource = ($('.ImgHolder').html()?.match(/src="(.*)\//) ?? [])[1];
+    if (imgSource !== MS_IMAGE_DOMAIN)
+      MS_IMAGE_DOMAIN = imgSource;
+    let image = `${MS_IMAGE_DOMAIN}/${metadata.id}.jpg`
     let title = $('h1', info).first().text() ?? ''
     let titles = [title]
     let author = entity.author[0]
@@ -267,7 +271,7 @@ export class Mangasee extends Source {
         mangaTiles.push(createMangaTile({
           id: elem.i,
           title: createIconText({ text: elem.s }),
-          image: `https://cover.mangabeast01.com/cover/${elem.i}.jpg`,
+          image: `${MS_IMAGE_DOMAIN}/${elem.i}.jpg`,
           subtitleText: createIconText({ text: elem.ss })
         }))
       }
@@ -311,16 +315,21 @@ export class Mangasee extends Source {
   }
 
   getHomePageSections(data: any, sections: HomeSection[]): HomeSection[] {
+    let $ = this.cheerio.load(data);
     let hot = (JSON.parse((data.match(/vm.HotUpdateJSON = (.*);/) ?? [])[1])).slice(0, 15)
     let latest = (JSON.parse((data.match(/vm.LatestJSON = (.*);/) ?? [])[1])).slice(0, 15)
     let newTitles = (JSON.parse((data.match(/vm.NewSeriesJSON = (.*);/) ?? [])[1])).slice(0, 15)
     let recommended = JSON.parse((data.match(/vm.RecommendationJSON = (.*);/) ?? [])[1])
 
+    let imgSource = ($('.ImageHolder').html()?.match(/ng-src="(.*)\//) ?? [])[1];
+    if (imgSource !== MS_IMAGE_DOMAIN)
+      MS_IMAGE_DOMAIN = imgSource;
+
     let hotManga: MangaTile[] = []
     hot.forEach((elem: any) => {
       let id = elem.IndexName
       let title = elem.SeriesName
-      let image = `https://cover.mangabeast01.com/cover/${id}.jpg`
+      let image = `${MS_IMAGE_DOMAIN}/${id}.jpg`
       let time = (new Date(elem.Date)).toDateString()
       time = time.slice(0, time.length - 5)
       time = time.slice(4, time.length)
@@ -337,7 +346,7 @@ export class Mangasee extends Source {
     latest.forEach((elem: any) => {
       let id = elem.IndexName
       let title = elem.SeriesName
-      let image = `https://cover.mangabeast01.com/cover/${id}.jpg`
+      let image = `${MS_IMAGE_DOMAIN}/${id}.jpg`
       let time = (new Date(elem.Date)).toDateString()
       time = time.slice(0, time.length - 5)
       time = time.slice(4, time.length)
@@ -354,7 +363,7 @@ export class Mangasee extends Source {
     newTitles.forEach((elem: any) => {
       let id = elem.IndexName
       let title = elem.SeriesName
-      let image = `https://cover.mangabeast01.com/cover/${id}.jpg`
+      let image = `${MS_IMAGE_DOMAIN}/${id}.jpg`
 
       newManga.push(createMangaTile({
         id: id,
@@ -367,7 +376,7 @@ export class Mangasee extends Source {
     recommended.forEach((elem: any) => {
       let id = elem.IndexName
       let title = elem.SeriesName
-      let image = `https://cover.mangabeast01.com/cover/${id}.jpg`
+      let image = `${MS_IMAGE_DOMAIN}/${id}.jpg`
       let time = (new Date(elem.Date)).toDateString()
 
       recManga.push(createMangaTile({
@@ -399,7 +408,7 @@ export class Mangasee extends Source {
       hot.forEach((elem: any) => {
         let id = elem.IndexName
         let title = elem.SeriesName
-        let image = `https://cover.mangabeast01.com/cover/${id}.jpg`
+        let image = `${MS_IMAGE_DOMAIN}/${id}.jpg`
         let time = (new Date(elem.Date)).toDateString()
         time = time.slice(0, time.length - 5)
         time = time.slice(4, time.length)
@@ -417,7 +426,7 @@ export class Mangasee extends Source {
       latest.forEach((elem: any) => {
         let id = elem.IndexName
         let title = elem.SeriesName
-        let image = `https://cover.mangabeast01.com/cover/${id}.jpg`
+        let image = `${MS_IMAGE_DOMAIN}/${id}.jpg`
         let time = (new Date(elem.Date)).toDateString()
         time = time.slice(0, time.length - 5)
         time = time.slice(4, time.length)
@@ -435,7 +444,7 @@ export class Mangasee extends Source {
       newTitles.forEach((elem: any) => {
         let id = elem.IndexName
         let title = elem.SeriesName
-        let image = `https://cover.mangabeast01.com/cover/${id}.jpg`
+        let image = `${MS_IMAGE_DOMAIN}/${id}.jpg`
         let time = (new Date(elem.Date)).toDateString()
         time = time.slice(0, time.length - 5)
         time = time.slice(4, time.length)
