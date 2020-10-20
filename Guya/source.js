@@ -2726,8 +2726,8 @@ class Guya extends paperback_extensions_common_1.Source {
         let result = typeof data === "string" ? JSON.parse(data) : data;
         let mangas = [];
         for (let series in result) {
-            if (metadata.ids.includes(series)) {
-                let seriesDetails = result[series];
+            let seriesDetails = result[series];
+            if (metadata.ids.includes(seriesDetails["slug"])) {
                 mangas.push(createManga({
                     id: seriesDetails["slug"],
                     titles: [series],
